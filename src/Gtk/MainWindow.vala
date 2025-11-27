@@ -637,46 +637,44 @@ class MainWindow : Gtk.Window{
 		snapshot_list_box.refresh();
 	}
 
-	public void browse_selected(){
-		
-		var sel = snapshot_list_box.treeview.get_selection ();
-		
-		if (sel.count_selected_rows() == 0){
-			
-			var f = File.new_for_path(App.repo.snapshots_path);
-			
-			if (f.query_exists()){
-				exo_open_folder(App.repo.snapshots_path);
-			}
-			else{
-				exo_open_folder(App.repo.mount_path);
-			}
-			return;
-		}
+	void safe_open_folder(string path) {
+    string open_path = path;
+    if (GLib.find_program_in_path("nautilus") != null) {
+        open_path = "admin://" + path;
+    }
+    exo_open_folder(open_path, false);
+}
 
-		TreeIter iter;
-		var store = (Gtk.ListStore) snapshot_list_box.treeview.model;
-
-		bool iterExists = store.get_iter_first (out iter);
-		
-		while (iterExists) {
-			if (sel.iter_is_selected (iter)){
-				
-				Snapshot bak;
-				store.get (iter, 0, out bak);
-
-				if (App.btrfs_mode){
-					exo_open_folder(bak.path, false);
-				}
-				else{
-					exo_open_folder(bak.path + "/localhost", false);
-				}
-				return;
-			}
-			iterExists = store.iter_next (ref iter);
-		}
-	}
-
+public void browse_selected(){
+    var sel = snapshot_list_box.treeview.get_selection ();
+    if (sel.count_selected_rows() == 0){
+        var f = File.new_for_path(App.repo.snapshots_path);
+        if (f.query_exists()){
+            safe_open_folder(App.repo.snapshots_path);
+        }
+        else{
+            safe_open_folder(App.repo.mount_path);
+        }
+        return;
+    }
+    TreeIter iter;
+    var store = (Gtk.ListStore) snapshot_list_box.treeview.model;
+    bool iterExists = store.get_iter_first (out iter);
+    while (iterExists) {
+        if (sel.iter_is_selected (iter)){
+            Snapshot bak;
+            store.get (iter, 0, out bak);
+            if (App.btrfs_mode){
+                safe_open_folder(bak.path);
+            }
+            else{
+                safe_open_folder(bak.path + "/localhost");
+            }
+            return;
+        }
+        iterExists = store.iter_next (ref iter);
+    }
+}
 	public void view_snapshot_log(bool view_restore_log){
 		
 		var sel = snapshot_list_box.treeview.get_selection ();
