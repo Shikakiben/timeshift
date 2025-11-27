@@ -642,7 +642,7 @@ class MainWindow : Gtk.Window{
     if (path == null) return false;
     foreach (string dir in path.split(":")) {
         string exe_path = Path.build_filename(dir, prog);
-        if (Posix.access(exe_path, Posix.AccessMode.EXISTS)) {
+        if (Posix.access(exe_path, Posix.F_OK) == 0) { 
             return true;
         }
     }
