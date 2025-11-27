@@ -648,16 +648,17 @@ class MainWindow : Gtk.Window{
     }
     return false;
 }
-
 void safe_open_folder(string path) {
-    string open_path = path;
     if (prog_in_path("nautilus")) {
-        if (Posix.geteuid() == 0) {
-            return;
+        string? sudo_user = Environment.get_variable("SUDO_USER");
+        if (sudo_user != null) {
+            string command = "sudo -u " + sudo_user + " nautilus admin://" + path + " &";
+            Posix.system(command);
         }
-        open_path = "admin://" + path;
+        return;
     }
-    exo_open_folder(open_path, false);
+    exo_open_folder(path, false);
+}
 }
 public void browse_selected(){
     var sel = snapshot_list_box.treeview.get_selection ();
