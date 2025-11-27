@@ -637,14 +637,25 @@ class MainWindow : Gtk.Window{
 		snapshot_list_box.refresh();
 	}
 
-	void safe_open_folder(string path) {
+	public bool prog_in_path(string prog) {
+    string? path = Environment.get_variable("PATH");
+    if (path == null) return false;
+    foreach (string dir in path.split(":")) {
+        string exe_path = Path.build_filename(dir, prog);
+        if (Posix.access(exe_path, Posix.AccessMode.EXISTS)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void safe_open_folder(string path) {
     string open_path = path;
-    if (GLib.find_program_in_path("nautilus") != null) {
+    if (prog_in_path("nautilus")) {
         open_path = "admin://" + path;
     }
     exo_open_folder(open_path, false);
 }
-
 public void browse_selected(){
     var sel = snapshot_list_box.treeview.get_selection ();
     if (sel.count_selected_rows() == 0){
