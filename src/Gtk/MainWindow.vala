@@ -652,6 +652,9 @@ class MainWindow : Gtk.Window{
 void safe_open_folder(string path) {
     string open_path = path;
     if (prog_in_path("nautilus")) {
+        if (Posix.geteuid() == 0) {
+            return;
+        }
         open_path = "admin://" + path;
     }
     exo_open_folder(open_path, false);
