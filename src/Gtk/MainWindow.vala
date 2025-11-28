@@ -659,7 +659,6 @@ void safe_open_folder(string path) {
     }
     exo_open_folder(path, false);
 }
-}
 public void browse_selected(){
     var sel = snapshot_list_box.treeview.get_selection ();
     if (sel.count_selected_rows() == 0){
